@@ -51,7 +51,7 @@ def bubble_sort(seq):
     return end - bgn
 
 
-def sort_by_choice_man(seq):
+def sort_with_select_man(seq):
     bgn = perf_counter()
     # print(seq)
     if type(seq) == list:
@@ -79,7 +79,7 @@ def sort_by_choice_man(seq):
     return end - bgn
 
 
-def sort_by_choice_prog(seq):
+def sort_with_select_prog(seq):
     bgn = perf_counter()
     l = len(seq)
     # print(seq)
@@ -100,7 +100,7 @@ def sort_by_choice_prog(seq):
     return end - bgn
 
 
-def sort_by_insert(seq):
+def sort_with_insert(seq):
     bgn = perf_counter()
     # print(seq)
     if type(seq) == list:
@@ -122,7 +122,7 @@ def sort_by_insert(seq):
     return end - bgn
 
 
-# sort_by_insert(row_ar)
-# compare_types(sort_by_insert (row), sort_by_insert (row_ar))
-print(compare_sorts(row_ar, py_sort, bubble_sort, sort_by_choice_man, sort_by_insert))
+# sort_with_insert(row_ar)
+# compare_types(sort_with_insert (row), sort_with_insert (row_ar))
+print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert))
 describe_row(row)
