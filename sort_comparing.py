@@ -2,16 +2,20 @@ import numpy as np
 import random as rd
 from time import perf_counter
 
-row = list(range(1000))
-rd.shuffle(row)
-row_ar = np.array(row)
+
+def row_making(length):
+    row = list(range(length))
+    rd.shuffle(row)
+    row_ar = np.array(row)
+    return row, row_ar
 
 
 def describe_row(seq):
     seq = np.array(seq)
     ordered_seq = sorted(seq)
     residual = seq - ordered_seq
-    print(f'The median of this sequence is {np.median(residual)} and the standart deviation is {np.std(residual)}')
+    # print(f'The median of this sequence is {np.median(residual)} and the standart deviation is {np.std(residual)}')
+    return np.median(residual), np.std(residual)
 
 
 def compare_types(func_list, func_arr):
@@ -122,7 +126,70 @@ def sort_with_insert(seq):
     return end - bgn
 
 
-# sort_with_insert(row_ar)
-# compare_types(sort_with_insert (row), sort_with_insert (row_ar))
-print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert))
-describe_row(row)
+def sort_with_merge(seq):
+    bgn = perf_counter()
+    #print(seq)
+    if type(seq) == list:
+        sub_seqs = [True]
+        sub_seqs[0] = [seq.pop(0), ]
+        for i in range(len(seq)):
+            for j in range(len(sub_seqs)):
+                if seq[i] > sub_seqs[j][-1]:
+                    sub_seqs[j].append(seq[i])
+                    break
+            else:
+                sub_seqs.append([seq[i],])
+        seq.clear()
+        while len(sub_seqs) > 1:
+            i_empty = []
+            smallest = sub_seqs[0][0]
+            smallest_i = 0
+            for i in range(len(sub_seqs)):
+                try:
+                    if sub_seqs[i][0] < smallest:
+                        smallest = sub_seqs[i][0]
+                        smallest_i = i
+                except IndexError:
+                    i_empty.append(i)
+            seq.append(sub_seqs[smallest_i].pop(0))
+            for i in range(len(i_empty)-1, -1, -1):
+                del sub_seqs[i_empty[i]]
+    else:
+        sub_seqs = [np.array([seq[0], ]), ]
+        seq = seq[1:]
+        for i in range(len(seq)):
+            for j in range(len(sub_seqs)):
+                if seq[i] > sub_seqs[j][-1]:
+                    sub_seqs[j] = np.append(sub_seqs[j], seq[i])
+                    break
+            else:
+                new = np.array([seq[i], ])
+                sub_seqs.append(new)
+        seq = np.array([])
+        while len(sub_seqs) > 1:
+            i_empty = []
+            smallest = sub_seqs[0][0]
+            smallest_i = 0
+            for i in range(len(sub_seqs)):
+                try:
+                    if sub_seqs[i][0] < smallest:
+                        smallest = sub_seqs[i][0]
+                        smallest_i = i
+                except IndexError:
+                    i_empty.append(i)
+            seq = np.append(seq, sub_seqs[smallest_i][0])
+            sub_seqs[smallest_i] = np.delete(sub_seqs[smallest_i], 0)
+            for i in range(len(i_empty) - 1, -1, -1):
+                del sub_seqs[i_empty[i]]
+    end = perf_counter()
+    seq = np.hstack([seq, sub_seqs[0]])
+    print(seq, '\n', f'For {type(seq)} it is lasted for {end-bgn} seconds')
+    return end - bgn
+
+row, row_ar = row_making(100)
+print(row)
+# sort_with_merge(row)
+compare_types(sort_with_merge(row), sort_with_merge(row_ar))
+# print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert))
+# describe_row(row)
+
