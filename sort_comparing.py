@@ -188,13 +188,57 @@ def sort_with_merge(seq):
 
 
 def quick_sort(seq):
-    pass
+    # print(seq)
+    def inner_sort_list(in_seq):
+        if len(in_seq) < 2:
+            return in_seq
+        pivot = in_seq[-1]
+        pos = 0
+        for i in range(len(in_seq) - 2, -1, -1):
+            if in_seq[i] > pivot:
+                in_seq.append(in_seq.pop(i))
+            else:
+                pos += 1
+        less_half = in_seq[:pos]
+        more_half = in_seq[pos + 1:]
+        less_half = inner_sort_list(less_half)
+        more_half = inner_sort_list(more_half)
+        in_seq = less_half + [pivot, ] + more_half
+        return in_seq
+
+    def inner_sort_ar(in_seq):
+        if len(in_seq) < 2:
+            return in_seq
+        pivot = in_seq[-1]
+        pos = 0
+        for i in range(len(in_seq) - 2, -1, -1):
+            if in_seq[i] > pivot:
+                in_seq = np.append(in_seq, in_seq[i])
+                in_seq = np.delete(in_seq, i)
+            else:
+                pos += 1
+        less_half = in_seq[:pos]
+        more_half = in_seq[pos + 1:]
+        less_half = inner_sort_ar(less_half)
+        more_half = inner_sort_ar(more_half)
+        less_half = np.append(less_half, pivot)
+        in_seq = np.hstack([less_half, more_half])
+        return in_seq
+
+    bgn = perf_counter()
+    if type(seq) == list:
+        seq = inner_sort_list(seq)
+    else:
+        seq = inner_sort_ar(seq)
+    end = perf_counter()
+    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    return end - bgn
 
 
-row, row_ar = row_making(1000)
+row, row_ar = row_making(500)
 print(row)
-# sort_with_merge(row)
+quick_sort(row)
 # compare_types(sort_with_merge(row), sort_with_merge(row_ar))
-print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge))
+print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge, quick_sort))
 # describe_row(row)
 
