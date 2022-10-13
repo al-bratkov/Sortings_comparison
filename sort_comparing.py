@@ -240,5 +240,12 @@ print(row)
 quick_sort(row)
 # compare_types(sort_with_merge(row), sort_with_merge(row_ar))
 print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge, quick_sort))
+
+
+row, row_ar = row_making(1000)
+print(row)
+# sort_with_merge(row)
+# compare_types(sort_with_merge(row), sort_with_merge(row_ar))
+print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge))
 # describe_row(row)
 
