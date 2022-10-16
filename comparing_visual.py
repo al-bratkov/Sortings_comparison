@@ -16,17 +16,34 @@ def select_sort_type():
     return sort_type
 
 
-#size = int(input('Enter length of sequence'))
-#cnt_repeat = int(input('Enter count of repeats'))
+# size = int(input('Enter length of sequence'))
+# cnt_repeat = int(input('Enter count of repeats'))
 
 # sort_type = select_sort_type()
 
-def compare_type_vis(*sort_funcs, sizes=[10, 100, 200, 500, 750, 1000]):
+def compare_type_vis(func, size=100):
+    sizes = [10, 100, 200, 500, 750, 1000]
+    res = [[], []]
+    for s in sizes:
+        l, ar = sc.compare_types(func, s)
+        res[0].append(l)
+        res[1].append(ar)
+    plt.plot(sizes, res[0])
+    plt.plot(sizes, res[1])
+    plt.show()
+
+
+def compare_sorts_vis(*sort_funcs, sizes=[10, 100, 200, 500, 750, 1000]):
     measuring = {size: 0 for size in sizes}
     row = sc.row_making(1000)[0]
+    names = []
     for func in sort_funcs:
         for size in sizes:
-            pass
+            measuring[size] = func(row[:size])
+        plt.scatter(sizes, measuring.values())
+        names.append(func.__name__)
+    plt.legend(names)
+    plt.show()
 
 
 def compare_size_vis(sort_func, repeats=100, sizes=[10, 100, 200, 500, 750, 1000]):
@@ -43,8 +60,6 @@ def compare_size_vis(sort_func, repeats=100, sizes=[10, 100, 200, 500, 750, 1000
     return length, result
 
 
-test = compare_size_vis(sc.sort_with_merge)
-print(test)
-plt.plot((1, 1), (2, 1))
-plt.plot((1, 2), (3, 4))
-plt.show()
+compare_sorts_vis(sc.py_sort, sc.bubble_sort, sc.sort_with_select_man, sc.sort_with_insert, sc.sort_with_merge, sc.quick_sort)
+
+

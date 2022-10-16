@@ -18,9 +18,12 @@ def describe_row(seq):
     return np.median(residual), np.std(residual)
 
 
-def compare_types(func_list, func_arr):
-    print(f'Array faster than list by {func_arr - func_list} seconds. {func_arr / func_list} times more.')
-    return func_arr - func_list
+def compare_types(func, size):
+    seq, seq_ar = row_making(size)
+    res_l = func(seq)
+    res_ar = func(seq_ar)
+    print(f'Array faster than list by {res_ar - res_l} seconds. {res_ar / res_l} times more.')
+    return res_l, res_ar
 
 
 def compare_sorts(seq, *funcs):
