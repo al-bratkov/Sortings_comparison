@@ -2,17 +2,18 @@ import pandas as pd
 import numpy as np
 import sort_comparing as sc
 
-sort_types_story = pd.DataFrame(columns=['Length', 'Median', 'Std',
+sort_types_story = pd.DataFrame(columns=['Length', 'Type', 'Median', 'Std',
                                    'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
                                    'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time Quick'])
 
 
 def describe(seq):
+    res = dict()
+    res['Length'] = len(seq)
+    res['Type'] = str(type(seq))
     seq = np.array(seq)
     ordered_seq = sorted(seq)
     deviation = seq - ordered_seq
-    res = dict()
-    res['Length'] = len(seq)
     res['Median'] = np.median(seq)
     res['Std'] = np.std(seq)
     res['Deviation mean'] = np.mean(deviation)
@@ -33,20 +34,28 @@ def timing(seq):
     return res
 
 
-def fill_row(ar, seq):
-    describe_columns = describe(seq).values()
-    timing_columns = timing(seq).values()
-    new_row = list(describe_columns) + list(timing_columns)
-    ar = ar.append(np.array(new_row))
-    return ar
+def fill_df(part_to_add, seq):
+    half1 = describe(seq).values()
+    half2 = timing(seq).values()
+    new_row = list(half1) + list(half2)
+    part_to_add.append(new_row)
+    return part_to_add
 
 
-def fill_df(df, size):
-    ar = np.array
+def expand_df(part, file='sort.csv'):
+    df = pd.DataFrame(part)
+    df.to_csv(file, mode='a', header=False)
 
-def make_stat(n):
-    pass
 
 
 row = sc.row_making(100)[0]
-print(fill_row(row))
+templ = []
+test = fill_df(templ, row)
+print(test)
+
+#sort_types_story = pd.DataFrame(test, columns=['Length', 'Type', 'Median', 'Std',
+#                                   'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
+#                                   'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time Quick'])
+
+expand_df(test)
+
