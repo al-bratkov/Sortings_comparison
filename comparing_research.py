@@ -30,7 +30,10 @@ def timing(seq):
     res['Time select'] = sc.sort_with_select_man(seq)
     res['Time insert'] = sc.sort_with_insert(seq)
     res['Time merge'] = sc.sort_with_merge(seq)
-    res['Time quick'] = sc.quick_sort(seq)
+    try:
+        res['Time quick'] = sc.quick_sort(seq)
+    except RecursionError:
+        res['Time quick'] = None
     return res
 
 
@@ -47,15 +50,22 @@ def expand_df(part, file='sort.csv'):
     df.to_csv(file, mode='a', header=False)
 
 
+def fill_db(file='sort.csv', attempts=100,  sizes=[10, 100, 200, 500, 750, 1000]):
+    part_to_add = []
+    for size in sizes:
+        for i in range(attempts):
+            seqs = sc.row_making(size)
+            for seq in seqs:
+                part_to_add = fill_df(part_to_add, seq)
+    expand_df(part_to_add, file)
+    print('Values were added to database')
 
-row = sc.row_making(100)[0]
-templ = []
-test = fill_df(templ, row)
-print(test)
 
-#sort_types_story = pd.DataFrame(test, columns=['Length', 'Type', 'Median', 'Std',
-#                                   'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
-#                                   'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time Quick'])
+# fill_db() # main function to fill the file with stat
+view_into = pd.read_csv('sort.csv')
+# print(view_into.info())
 
-expand_df(test)
+select_faster = view_into[view_into['Time select'] > view_into['Time insert']]
+insert_faster = view_into[view_into['Time select'] < view_into['Time insert']]
+print(select_faster.size, insert_faster.size)
 
