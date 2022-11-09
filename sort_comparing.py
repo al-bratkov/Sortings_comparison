@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import random as rd
 from time import perf_counter
@@ -35,114 +36,120 @@ def compare_sorts(seq, *funcs):
 
 
 def py_sort(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
-    seq = sorted(seq)
+    inner_seq = sorted(inner_seq)
     end = perf_counter()
     return end - bgn
 
 
 def bubble_sort(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
     flag_fin = False
     circle = 1
     # print(seq)
     while flag_fin == False:
         flag_fin = True
-        for i in range(len(seq) - circle):
-            if seq[i] > seq[i + 1]:
+        for i in range(len(inner_seq) - circle):
+            if inner_seq[i] > inner_seq[i + 1]:
                 flag_fin = False
-                seq[i], seq[i + 1] = seq[i + 1], seq[i]
+                inner_seq[i], inner_seq[i + 1] = inner_seq[i + 1], inner_seq[i]
         circle += 1
     end = perf_counter()
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
 def sort_with_select_man(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
     # print(seq)
-    if type(seq) == list:
-        for i in range(len(seq)):
-            smallest = seq[0]
+    if type(inner_seq) == list:
+        for i in range(len(inner_seq)):
+            smallest = inner_seq[0]
             smallest_i = 0
-            for j in range(len(seq) - i):
-                if seq[j] < smallest:
-                    smallest = seq[j]
+            for j in range(len(inner_seq) - i):
+                if inner_seq[j] < smallest:
+                    smallest = inner_seq[j]
                     smallest_i = j
-            seq.append(smallest)
-            del seq[smallest_i]
+            inner_seq.append(smallest)
+            del inner_seq[smallest_i]
     else:
-        for i in range(len(seq)):
-            smallest = seq[0]
+        for i in range(len(inner_seq)):
+            smallest = inner_seq[0]
             smallest_i = 0
-            for j in range(len(seq) - i):
-                if seq[j] < smallest:
-                    smallest = seq[j]
+            for j in range(len(inner_seq) - i):
+                if inner_seq[j] < smallest:
+                    smallest = inner_seq[j]
                     smallest_i = j
-            seq = np.append(seq, smallest)
-            seq = np.delete(seq, smallest_i)
+            inner_seq = np.append(inner_seq, smallest)
+            inner_seq = np.delete(inner_seq, smallest_i)
     end = perf_counter()
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
 def sort_with_select_prog(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
-    l = len(seq)
+    l = len(inner_seq)
     # print(seq)
-    if type(seq) == list:
-        for i in range(len(seq)):
-            smallest = min(seq[:l - i])
-            smallest_i = seq.index(smallest)
-            seq.append(smallest)
-            del seq[smallest_i]
+    if type(inner_seq) == list:
+        for i in range(len(inner_seq)):
+            smallest = min(inner_seq[:l - i])
+            smallest_i = inner_seq.index(smallest)
+            inner_seq.append(smallest)
+            del inner_seq[smallest_i]
     else:
-        for i in range(len(seq)):
-            smallest = min(seq[:l - i])
-            smallest_i = np.where(seq == smallest)
-            seq = np.append(seq, smallest)
-            seq = np.delete(seq, smallest_i)
+        for i in range(len(inner_seq)):
+            smallest = min(inner_seq[:l - i])
+            smallest_i = np.where(inner_seq == smallest)
+            inner_seq = np.append(inner_seq, smallest)
+            inner_seq = np.delete(inner_seq, smallest_i)
     end = perf_counter()
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
 def sort_with_insert(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
     # print(seq)
-    if type(seq) == list:
-        for i in range(1, len(seq)):
+    if type(inner_seq) == list:
+        for i in range(1, len(inner_seq)):
             j = 0
-            while (seq[i] > seq[j]) and (j < i):
+            while (inner_seq[i] > inner_seq[j]) and (j < i):
                 j += 1
-            seq.insert(j, seq.pop(i))
+            inner_seq.insert(j, inner_seq.pop(i))
     else:
-        for i in range(1, len(seq)):
+        for i in range(1, len(inner_seq)):
             j = 0
-            while (seq[i] > seq[j]) and (j < i):
+            while (inner_seq[i] > inner_seq[j]) and (j < i):
                 j += 1
-            x = seq[i]
-            seq = np.insert(seq, j, x)
-            seq = np.delete(seq, i + 1)
+            x = inner_seq[i]
+            inner_seq = np.insert(inner_seq, j, x)
+            inner_seq = np.delete(inner_seq, i + 1)
     end = perf_counter()
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
 def sort_with_merge(seq):
+    inner_seq = copy.copy(seq)
     bgn = perf_counter()
     #print(seq)
-    if type(seq) == list:
+    if type(inner_seq) == list:
         sub_seqs = [True]
-        sub_seqs[0] = [seq.pop(0), ]
-        for i in range(len(seq)):
+        sub_seqs[0] = [inner_seq.pop(0), ]
+        for i in range(len(inner_seq)):
             for j in range(len(sub_seqs)):
-                if seq[i] > sub_seqs[j][-1]:
-                    sub_seqs[j].append(seq[i])
+                if inner_seq[i] > sub_seqs[j][-1]:
+                    sub_seqs[j].append(inner_seq[i])
                     break
             else:
-                sub_seqs.append([seq[i],])
-        seq.clear()
+                sub_seqs.append([inner_seq[i], ])
+        inner_seq.clear()
         while len(sub_seqs) > 1:
             i_empty = []
             smallest = sub_seqs[0][0]
@@ -154,21 +161,21 @@ def sort_with_merge(seq):
                         smallest_i = i
                 except IndexError:
                     i_empty.append(i)
-            seq.append(sub_seqs[smallest_i].pop(0))
+            inner_seq.append(sub_seqs[smallest_i].pop(0))
             for i in range(len(i_empty)-1, -1, -1):
                 del sub_seqs[i_empty[i]]
     else:
-        sub_seqs = [np.array([seq[0], ]), ]
-        seq = seq[1:]
-        for i in range(len(seq)):
+        sub_seqs = [np.array([inner_seq[0], ]), ]
+        inner_seq = inner_seq[1:]
+        for i in range(len(inner_seq)):
             for j in range(len(sub_seqs)):
-                if seq[i] > sub_seqs[j][-1]:
-                    sub_seqs[j] = np.append(sub_seqs[j], seq[i])
+                if inner_seq[i] > sub_seqs[j][-1]:
+                    sub_seqs[j] = np.append(sub_seqs[j], inner_seq[i])
                     break
             else:
-                new = np.array([seq[i], ])
+                new = np.array([inner_seq[i], ])
                 sub_seqs.append(new)
-        seq = np.array([])
+        inner_seq = np.array([])
         while len(sub_seqs) > 1:
             i_empty = []
             smallest = sub_seqs[0][0]
@@ -180,17 +187,18 @@ def sort_with_merge(seq):
                         smallest_i = i
                 except IndexError:
                     i_empty.append(i)
-            seq = np.append(seq, sub_seqs[smallest_i][0])
+            inner_seq = np.append(inner_seq, sub_seqs[smallest_i][0])
             sub_seqs[smallest_i] = np.delete(sub_seqs[smallest_i], 0)
             for i in range(len(i_empty) - 1, -1, -1):
                 del sub_seqs[i_empty[i]]
     end = perf_counter()
-    seq = np.hstack([seq, sub_seqs[0]])
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end-bgn} seconds')
+    inner_seq = np.hstack([inner_seq, sub_seqs[0]])
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
 def quick_sort(seq):
+    inner_seq = copy.copy(seq)
     # print(seq)
     def inner_sort_list(in_seq):
         if len(in_seq) < 2:
@@ -229,18 +237,18 @@ def quick_sort(seq):
         return in_seq
 
     bgn = perf_counter()
-    if type(seq) == list:
-        seq = inner_sort_list(seq)
+    if type(inner_seq) == list:
+        inner_seq = inner_sort_list(inner_seq)
     else:
-        seq = inner_sort_ar(seq)
+        inner_seq = inner_sort_ar(inner_seq)
     end = perf_counter()
-    print(seq, '\n', f'For {type(seq)} it is lasted for {end - bgn} seconds')
+    print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
 
-# row, row_ar = row_making(1000)
+# row, row_ar = row_making(100)
 # print(row)
-# quick_sort(row_ar)
+# py_sort(row)
 # compare_types(sort_with_merge(row), sort_with_merge(row_ar))
 # print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge, quick_sort))
 
