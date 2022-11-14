@@ -1,21 +1,25 @@
 import pandas as pd
 import numpy as np
+import copy
+import random as rd
+import matplotlib.pyplot as plt
 import sort_comparing as sc
 
 sort_types_story = pd.DataFrame(columns=['Length', 'Type', 'Median', 'Std',
                                    'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
                                    'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time quick'])
 
-
+# sort_types_story.to_csv('sort.csv')
 def describe(seq):
+    inner_seq = copy.copy(seq)
     res = dict()
-    res['Length'] = len(seq)
-    res['Type'] = str(type(seq))
-    seq = np.array(seq)
-    ordered_seq = sorted(seq)
-    deviation = seq - ordered_seq
-    res['Median'] = np.median(seq)
-    res['Std'] = np.std(seq)
+    res['Length'] = len(inner_seq)
+    res['Type'] = str(type(inner_seq))
+    new_inner_seq = np.array(inner_seq)
+    ordered_seq = sorted(new_inner_seq)
+    deviation = new_inner_seq - ordered_seq
+    res['Median'] = np.median(inner_seq)
+    res['Std'] = np.std(inner_seq)
     res['Deviation mean'] = np.mean(deviation)
     res['Deviation max'] = np.max(deviation)
     res['Deviation median'] = np.median(deviation)
@@ -24,22 +28,24 @@ def describe(seq):
 
 
 def timing(seq):
+    inner_seq = copy.copy(seq)
     res = dict()
-    res['Time py'] = sc.py_sort(seq)
-    res['Time bubble'] = sc.bubble_sort(seq)
-    res['Time select'] = sc.sort_with_select_man(seq)
-    res['Time insert'] = sc.sort_with_insert(seq)
-    res['Time merge'] = sc.sort_with_merge(seq)
+    res['Time py'] = sc.py_sort(inner_seq)
+    res['Time bubble'] = sc.bubble_sort(inner_seq)
+    res['Time select'] = sc.sort_with_select_man(inner_seq)
+    res['Time insert'] = sc.sort_with_insert(inner_seq)
+    res['Time merge'] = sc.sort_with_merge(inner_seq)
     try:
-        res['Time quick'] = sc.quick_sort(seq)
+        res['Time quick'] = sc.quick_sort(inner_seq)
     except RecursionError:
         res['Time quick'] = None
     return res
 
 
 def fill_df(part_to_add, seq):
-    half1 = describe(seq).values()
-    half2 = timing(seq).values()
+    inner_seq = copy.copy(seq)
+    half1 = describe(inner_seq).values()
+    half2 = timing(inner_seq).values()
     new_row = list(half1) + list(half2)
     part_to_add.append(new_row)
     return part_to_add
@@ -51,28 +57,84 @@ def expand_df(part, file='sort.csv'):
     df.to_csv(file, mode='a', header=False)
 
 
-def fill_db(file='sort.csv', attempts=100,  sizes=[10, 100, 200, 500, 750, 950]):
+def fill_db(attempts=100,  sizes=[10, 100, 200, 500, 750, 950]):
     part_to_add = []
     for size in sizes:
         for i in range(attempts):
-            seqs = sc.row_making(size)
+            seqs = sc.row_making(size)[::-1]
             for seq in seqs:
                 part_to_add = fill_df(part_to_add, seq)
-            expand_df(part_to_add, file)
+    expand_df(part_to_add)
     print('Values were added to database')
 
 
-for i in range(3):
-    fill_db()  # main function to fill the file with stat
-view_into = pd.read_csv('sort.csv')
-print(view_into.info())
-thousand = view_into[view_into["Length"] == 950][["Type", "Time quick"]]
-thousand_ar = thousand[thousand["Type"] == "<class 'numpy.ndarray'>"]
-print(thousand_ar.sort_values("Time quick"))
+class ResearchDatabase:
+    def __init__(self, df):
+        self.df = df
+        print(df.columns)
+        print(df.info())
+        self.sizes = set(df["Length"])
 
-# view_into = view_into.reindex(columns=['Length', 'Type', 'Median', 'Std',
-#                                   'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
- #                                  'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time Quick'])
+    def column_summary(self, column):
+        summary = {'min time': column.min(), "max time": column.max(),
+                     "avg time": column.mean(),
+                     "time range": column.max() - column.min()}
+        return summary
+
+    def compare_summary(self):
+        pass
+
+    def dif_between_seq_types(self, length=0, sort_type_col=""):
+        def count_range(col):
+            return np.max(col) - np.min(col)
+        summary = self.df[self.df["Length"] == length].groupby("Type")[sort_type_col].describe() # agg([np.min, np.max, np.mean, count_range])
+        return summary
+
+def checking():
+    l, ar = sc.row_making(10)
+    comp_res = [[], []]
+    funcs = [sc.py_sort, sc.bubble_sort, sc.sort_with_select_man, sc.sort_with_insert, sc.sort_with_merge,
+             sc.quick_sort]
+    for func in funcs:
+        comp_res[0].append(func(l))
+        comp_res[1].append(func(ar))
+    part_to_add = []
+    for seq in l, ar:
+        part_to_add = fill_df(part_to_add, seq)
+    expand_df(part_to_add, 'sort.csv')
+    view_into = pd.read_csv('sort.csv')
+    print(l)
+    print(comp_res[0])
+    print(comp_res[1])
+    print(view_into[view_into["Length"] == 10][["Type", "Time bubble", "Time select",
+                                                "Time insert", "Time merge", "Time quick"]])
+    print(np.array(comp_res[0]) > np.array(comp_res[0]))
+    sort_types_story.to_csv('sort.csv')
+
+
+for _ in range(5):
+    fill_db()
+view_into = pd.read_csv('sort.csv')
+test = ResearchDatabase(view_into)
+print(test.dif_between_seq_types(100, "Time insert"))
+
+"""
+one_size = view_into[view_into["Length"] == 950]
+one_size_list = one_size[one_size["Type"] == "<class 'list'>"]
+view_into_list = view_into[view_into["Type"] == "<class 'list'>"][["Type", "Length", "Time bubble", "Time select",
+                                                                   "Time insert", "Time merge", "Time quick", "Time py"]]
+view_into_ar = view_into[view_into["Type"] == "<class 'numpy.ndarray'>"][["Type", "Length", "Time py", "Time bubble",
+                                                                          "Time select", "Time insert", "Time merge",
+                                                                          "Time quick"]]
+#plt.figure(figsize=[50, 4.8])
+for col in view_into_list.iloc[:, -3:].columns:
+    view_into_list[view_into_list["Length"] == 10][col].hist(bins=10, legend=col)
+
+# show = view_into_list[view_into_list["Length"] == 750][["Time merge"]]
+# show.hist(bins=10)
+plt.show()
+print("END")
+"""
 # print(view_into["Time quick"])
 # select_faster = view_into[view_into['Time select'] < view_into['Time insert']]
 # insert_faster = view_into[view_into['Time select'] > view_into['Time insert']]

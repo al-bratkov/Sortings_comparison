@@ -23,7 +23,7 @@ def compare_types(func, size):
     seq, seq_ar = row_making(size)
     res_l = func(seq)
     res_ar = func(seq_ar)
-    print(f'Array faster than list by {res_ar - res_l} seconds. {res_ar / res_l} times more.')
+    print(f'Array is faster than list by {res_l - res_ar} seconds. {res_l / res_ar} times more.')
     return res_l, res_ar
 
 
@@ -192,7 +192,10 @@ def sort_with_merge(seq):
             for i in range(len(i_empty) - 1, -1, -1):
                 del sub_seqs[i_empty[i]]
     end = perf_counter()
+    type_of = type(inner_seq)
     inner_seq = np.hstack([inner_seq, sub_seqs[0]])
+    if type_of == list:
+        inner_seq = list(inner_seq)
     print(inner_seq, '\n', f'For {type(inner_seq)} it is lasted for {end - bgn} seconds')
     return end - bgn
 
@@ -249,7 +252,7 @@ def quick_sort(seq):
 # row, row_ar = row_making(100)
 # print(row)
 # py_sort(row)
-# compare_types(sort_with_merge(row), sort_with_merge(row_ar))
+# print(min(compare_types(bubble_sort, 100)))
 # print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge, quick_sort))
 
 
@@ -260,3 +263,5 @@ def quick_sort(seq):
 # print(compare_sorts(row_ar, py_sort, bubble_sort, sort_with_select_man, sort_with_insert, sort_with_merge))
 # describe_row(row)
 
+# https://towardsdatascience.com/python-lists-are-sometimes-much-faster-than-numpy-heres-a-proof-4b3dad4653ad
+#
