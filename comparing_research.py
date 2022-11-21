@@ -8,11 +8,18 @@ import sort_comparing as sc
 sort_types_story = pd.DataFrame(columns=['Length', 'Type', 'Median', 'Std',
                                    'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
                                    'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time quick'])
+sort_types_story_full = pd.DataFrame(columns=['Row', 'Length', 'Type', 'Median', 'Std',
+                                   'Deviation mean', 'Deviation max', 'Deviation median', 'Deviation std',
+                                   'Time py', 'Time bubble', 'Time select', 'Time insert', 'Time merge', 'Time quick'])
 
 # sort_types_story.to_csv('sort.csv')
+# sort_types_story_full.to_csv('research.csv')
+
+
 def describe(seq):
     inner_seq = copy.copy(seq)
     res = dict()
+    res['Row'] = inner_seq
     res['Length'] = len(inner_seq)
     res['Type'] = str(type(inner_seq))
     new_inner_seq = np.array(inner_seq)
@@ -57,14 +64,14 @@ def expand_df(part, file='sort.csv'):
     df.to_csv(file, mode='a', header=False)
 
 
-def fill_db(attempts=100,  sizes=[10, 100, 200, 500, 750, 950]):
+def fill_db(attempts=100,  sizes=[10, 100, 200, 500, 750, 950], file='sort.csv'):
     part_to_add = []
     for size in sizes:
         for i in range(attempts):
-            seqs = sc.row_making(size)[::-1]
+            seqs = sc.row_making(size)
             for seq in seqs:
                 part_to_add = fill_df(part_to_add, seq)
-    expand_df(part_to_add)
+    expand_df(part_to_add, file)
     print('Values were added to database')
 
 
@@ -75,20 +82,35 @@ class ResearchDatabase:
         print(df.info())
         self.sizes = set(df["Length"])
 
-    def column_summary(self, column):
-        summary = {'min time': column.min(), "max time": column.max(),
-                     "avg time": column.mean(),
-                     "time range": column.max() - column.min()}
-        return summary
+    def dif_types_summary(self, length=0, sort_type_col=""):
+        inner_df = self.df[self.df["Length"] == length]
+        types = set(self.df["Type"])
 
-    def compare_summary(self):
-        pass
-
-    def dif_between_seq_types(self, length=0, sort_type_col=""):
-        def count_range(col):
+        def count_spread(col):
             return np.max(col) - np.min(col)
-        summary = self.df[self.df["Length"] == length].groupby("Type")[sort_type_col].describe() # agg([np.min, np.max, np.mean, count_range])
+
+        summary = inner_df.groupby("Type")[sort_type_col].agg([np.min, np.max, count_spread, np.mean, np.median, np.std])
+        # quartiles = np.quantile(inner_df.groupby("Type")[sort_type_col], np.linspace(0, 1, 5))
         return summary
+
+    def find_slow_outliers(self, length=0, sort_type_col="", kind="<class 'list'>"):
+        inner_df = self.df[self.df["Length"] == length]
+        inner_df = inner_df[inner_df["Type"] == kind]
+        perc_25 = np.quantile(inner_df[sort_type_col], 0.25)
+        perc_75 = np.quantile(inner_df[sort_type_col], 0.75)
+        iqr = perc_75 - perc_25
+        outliers_more = inner_df[inner_df[sort_type_col] > perc_75 + iqr * 1.5].sort_values(sort_type_col)
+        return outliers_more.index
+
+    def find_fast_outliers(self, length=0, sort_type_col="", kind="<class 'list'>"):
+        inner_df = self.df[self.df["Length"] == length]
+        inner_df = inner_df[inner_df["Type"] == kind]
+        perc_25 = np.quantile(inner_df[sort_type_col], 0.25)
+        perc_75 = np.quantile(inner_df[sort_type_col], 0.75)
+        iqr = perc_75 - perc_25
+        outliers_less = inner_df[inner_df[sort_type_col] < perc_25 - iqr * 1.5].sort_values(sort_type_col)
+        return outliers_less.index
+
 
 def checking():
     l, ar = sc.row_making(10)
@@ -112,11 +134,12 @@ def checking():
     sort_types_story.to_csv('sort.csv')
 
 
-for _ in range(5):
-    fill_db()
-view_into = pd.read_csv('sort.csv')
+# fill_db()
+# fill_db(attempts=1000, sizes=[100, ], file='research.csv')
+view_into = pd.read_csv('research.csv')
 test = ResearchDatabase(view_into)
-print(test.dif_between_seq_types(100, "Time insert"))
+print(test.find_slow_outliers(100, "Time quick",))
+# print(test.find_slow_outliers(100, "Time quick",).to_string())
 
 """
 one_size = view_into[view_into["Length"] == 950]

@@ -1,5 +1,9 @@
+import pandas as pd
+
 import sort_comparing as sc
+import comparing_research as cr
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def select_sort_type():
@@ -58,4 +62,21 @@ def compare_size_vis(sort_func, repeats=100, sizes=[10, 100, 200, 500, 750, 1000
     return length, result
 
 
-compare_sorts_vis(sc.py_sort, sc.bubble_sort, sc.sort_with_select_man, sc.sort_with_insert, sc.sort_with_merge, sc.quick_sort)
+class VisualiseDatabaseFeatures:
+    def __init__(self, df):
+        self.df = df
+
+    def vis_dif_types(self, length=0, sort_type_col=""):
+        inner_df = self.df[self.df["Length"] == length]
+        types = set(self.df["Type"])
+        for t in types:
+            one_type = inner_df[inner_df["Type"] == t][sort_type_col]
+            plt.boxplot(one_type)
+            plt.legend(t)
+        plt.show()
+        # quartiles = np.quantile(inner_df.groupby("Type")[sort_type_col], np.linspace(0, 1, 5))
+
+
+# compare_sorts_vis(sc.py_sort, sc.bubble_sort, sc.sort_with_select_man, sc.sort_with_insert, sc.sort_with_merge, sc.quick_sort)
+test = VisualiseDatabaseFeatures(pd.read_csv("sort.csv"))
+test.vis_dif_types(100, "Time quick")
